@@ -15,12 +15,15 @@
 #define ADJ_L    2
 #define NUM_L    3
 #define CON_L    4
+#define QWERTY_M 5
+#define ADJ_M    6
 
 #define Undo   LC(Z)
 #define Cut    LC(X)
 #define Copy   LC(C)
 #define Paste  LC(V)
 #define Close  LA(F4)
+#define CloseM  LG(Q)
 #define SPC_L  LG(LC(LEFT))
 #define SPC_R  LG(LC(RIGHT))
 #define PT_Run  LC(LS(LA(SPACE)))
@@ -28,11 +31,32 @@
 / {
 	behaviors {
 		// Swapper for smart alt+tab
-		swapper: swapper {
+		alt_tab: alt_tab {
 		    compatible = "zmk,behavior-tri-state";
-		    label = "SWAPPER";
+		    label = "ALT_TAB";
 		    #binding-cells = <0>;
 		    bindings = <&kt LALT>, <&kp TAB>, <&kt LALT>;
+		    ignored-key-positions = <8 19 20 21 44>;
+		};
+		gui_t: gui_t {
+		    compatible = "zmk,behavior-tri-state";
+		    label = "GUI_T";
+		    #binding-cells = <0>;
+		    bindings = <&kt LGUI>, <&kp T>, <&kt LGUI>;
+		    ignored-key-positions = <8 19 20 21 44>;
+		};
+		gui_tab: gui_tab {
+		    compatible = "zmk,behavior-tri-state";
+		    label = "GUI_TAB";
+		    #binding-cells = <0>;
+		    bindings = <&kt LGUI>, <&kp TAB>, <&kt LGUI>;
+		    ignored-key-positions = <8 19 20 21 44>;
+		};
+		gui_grave: gui_grave {
+		    compatible = "zmk,behavior-tri-state";
+		    label = "GUI_GRAVE";
+		    #binding-cells = <0>;
+		    bindings = <&kt LGUI>, <&kp GRAVE>, <&kt LGUI>;
 		    ignored-key-positions = <8 19 20 21 44>;
 		};
 	};
@@ -41,6 +65,10 @@
 		compatible = "zmk,conditional-layers";
 		tri_layer {
 			if-layers = <1 2>;
+			then-layer = <3>;
+		};
+		tri_layer_mac {
+			if-layers = <1 6>;
 			then-layer = <3>;
 		};
 	};
@@ -59,11 +87,11 @@
                         bindings = <
 &kp  TAB      &kp  Q        &kp  W        &kp  E        &kp  R        &kp  T                                                                         &kp  Y        &kp  U        &kp  I        &kp  O        &kp  P        &kp  BSPC
 &kp  ESC      &kp  A        &kp  S        &kp  D        &kp  F        &kp  G                                                                         &kp  H        &kp  J        &kp  K        &kp  L        &kp  SQT      &kp  ENTER  
-&kp  LSHFT    &kp  Z        &kp  X        &kp  C        &kp  V        &kp  B        &kp  CAPS                                          &mo  CON_L    &kp  N        &kp  M        &kp  COMMA    &kp  DOT      &kp  SLASH    &kp  RSHFT
-                            &kp  LCTRL                  &kp  LGUI     &kp  LALT     &kp  SPACE    &mo  ADJ_L             &mo  SYM_L    &kp  LSHFT    &kp  LALT     &kp  RGUI                   &none   
+&kp  LSHFT    &kp  Z        &kp  X        &kp  C        &kp  V        &kp  B        &none                                              &mo  CON_L    &kp  N        &kp  M        &kp  COMMA    &kp  DOT      &kp  SLASH    &kp  RSHFT
+                            &kp  LCTRL                  &kp  LGUI     &kp  LALT     &kp  SPACE    &mo  ADJ_L             &mo  SYM_L    &kp  LSHFT    &kp  LALT     &kp  LGUI                   &none   
                         >;
 			
-                        sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+                        sensor-bindings = <&inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;
                 };
 		
                 sym_layer {
@@ -74,7 +102,7 @@
  * ----------------|       |-------|       |       |       |       |---|       |       |       |       |-------| CTRL  |----------------
  */
                         bindings = <
-&trans     &none         &kp  LBKT     &kp  LBRC     &kp  LPAR     &kp  GRAVE                                                                     &kp  CARET    &kp  RPAR     &kp  RBRC     &kp  RBKT     &kp  RPAR     &trans
+&trans     &none         &kp  LBKT     &kp  LBRC     &kp  LPAR     &kp  GRAVE                                                                     &kp  CARET    &kp  RPAR     &kp  RBRC     &kp  RBKT     &caps_word    &trans
 &trans     &kp  MINUS    &kp  ASTRK    &kp  EQUAL    &kp  UNDER    &kp  DOLLAR                                                                    &kp  HASH     &sk  RCTRL    &sk  RSHFT    &sk   LALT    &sk  RGUI     &trans
 &trans     &kp  PLUS     &kp  PIPE     &kp  AT       &kp  BSLH     &kp  PERCENT  &sk  RALT                                          &kp  K_APP    &kp  TILDE    &kp  AMPS     &kp  SEMI     &kp  COLON    &kp  EXCL     &trans
 			 &trans                      &trans        &trans        &trans        &trans                 &trans        &trans        &trans        &trans                      &trans    
@@ -88,17 +116,17 @@
  * -------------------------------------------------------------------------------------------------------------------------------------
  * |       | A(F4) | swap  | enter |  esc  | pt_run|-----------------------------------|prt scr| home  |  up   |  end  |       |       |
  * |       |  gui  |  alt  | shift | ctrl  |  del  |-----------------------------------| bspc  | left  | down  | right |  tab  |       |
- * |       | spc_l | spc_r | copy  | paste |       |BT CLR |-------------------|       |       | pg dn | pg up |       |       |       |
+ * |       | spc_l | spc_r | copy  | paste |       |       |-------------------|       |       | pg dn | pg up |       |       |       |
  * ----------------|       |-------|       |       |       |       |---|       |       |       |       |-------| CTRL  |----------------
  */
                         bindings = <
-&none         &kp Close     &swapper      &kp ENTER     &kp ESC       &kp PT_Run                                                                 &kp PRINTSCREEN &kp HOME    &kp UP      &kp END    &none    &none
+&none         &kp Close     &alt_tab      &kp ENTER     &kp ESC       &kp PT_Run                                                                 &kp PRINTSCREEN &kp HOME    &kp UP      &kp END    &gui_t   &none
 &none         &sk LGUI      &sk  LALT     &sk LSHFT     &sk LCTRL     &kp  DEL                                                                   &kp BSPC        &kp LEFT    &kp DOWN    &kp RIGHT  &kp TAB  &none
-&none         &kp SPC_L     &kp SPC_R     &kp Copy      &kp Paste     &none         &bt BT_CLR                                         &none     &none           &kp PG_DN   &kp PG_UP   &none      &none    &trans
-                            &trans                      &trans        &trans        &trans        &trans                 &trans        &trans    &trans          &trans                  &kp  RCTRL   
+&none         &kp SPC_L     &kp SPC_R     &kp Copy      &kp Paste     &none         &none                                              &none     &none           &kp PG_DN   &kp PG_UP   &none      &none    &trans
+                            &trans                      &trans        &trans        &trans        &trans                 &trans        &trans    &trans          &to QWERTY_M            &kp  RCTRL   
                         >;
 			
-                        sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+                        sensor-bindings = <&inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;
                 };
 
                 num_layer {
@@ -122,7 +150,7 @@
 /* CON   
  * -------------------------------------------------------------------------------------------------------------------------------------
  * |       | bt_clr|       |       |       |       |-----------------------------------|       |       |       |       |       |       |
-* |       | bt_0  | bt_1  | bt_2  | br_3  |       |-----------------------------------|       |       |       |       |       |       |
+ * |       | bt_0  | bt_1  | bt_2  | br_3  |       |-----------------------------------|       |       |       |       |       |       |
  * |       |       |       |       |       |       |       |-------------------|       |       |       |       |       |       |       |
  * ----------------|       |-------|       |       |       |       |---|       |       |       |       |-------|       |----------------
  */
@@ -136,5 +164,43 @@
 			
                         sensor-bindings = <&inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;
                 };
+
+                default_layer_mac {
+/* QWERTY MAC
+ * -------------------------------------------------------------------------------------------------------------------------------------
+ * | TAB   |   Q   |   W   |   E   |   R   |   T   |-----------------------------------|   Y   |   U   |   I   |   O   |   P   | BKSPC |
+ * | ESC   |   A   |   S   |   D   |   F   |   G   |-----------------------------------|   H   |   J   |   K   |   L   |   '   | ENTER |
+ * | SHIFT |   Z   |   X   |   C   |   V   |   B   | CAPS  |-------------------| Con   |   N   |   M   |   ,   |   .   |   /   | SHIFT |
+ * ----------------| CTRL  |-------|  GUI  |  ALT  | SPACE |  Adj  |---|  Sym  | SPACE |  ALT  |  GUI  |-------|  n/a  |----------------
+ */
+                        bindings = <
+&kp  TAB      &kp  Q        &kp  W        &kp  E        &kp  R        &kp  T                                                                         &kp  Y        &kp  U        &kp  I        &kp  O        &kp  P        &kp  BSPC
+&kp  ESC      &kp  A        &kp  S        &kp  D        &kp  F        &kp  G                                                                         &kp  H        &kp  J        &kp  K        &kp  L        &kp  SQT      &kp  ENTER  
+&kp  LSHFT    &kp  Z        &kp  X        &kp  C        &kp  V        &kp  B        &none                                              &mo  CON_L    &kp  N        &kp  M        &kp  COMMA    &kp  DOT      &kp  SLASH    &kp  RSHFT
+                            &kp  LCTRL                  &kp  LGUI     &kp  LALT     &kp  SPACE    &mo  ADJ_M             &mo  SYM_L    &kp  LSHFT    &kp  LALT     &kp  LGUI                   &none   
+                        >;
+			
+                        sensor-bindings = <&inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;
+                };
+		
+		
+                adj_layer_mac {
+/* ADJUST MAC
+ * -------------------------------------------------------------------------------------------------------------------------------------
+ * |       | A(F4) | swap  | enter |  esc  | pt_run|-----------------------------------|prt scr| home  |  up   |  end  |       |       |
+ * |       |  gui  |  alt  | shift | ctrl  |  del  |-----------------------------------| bspc  | left  | down  | right |  tab  |       |
+ * |       | spc_l | spc_r | copy  | paste |       |BT CLR |-------------------|       |       | pg dn | pg up |       |       |       |
+ * ----------------|       |-------|       |       |       |       |---|       |       |       |       |-------| CTRL  |----------------
+ */
+                        bindings = <
+&none         &kp LG(Q)     &gui_tab      &kp ENTER     &kp ESC       &kp LG(SPACE)                                                              &kp LG(LS(4))   &kp HOME    &kp UP      &kp END    &gui_grave &none
+&none         &sk LGUI      &sk  LALT     &sk LSHFT     &sk LCTRL     &kp  DEL                                                                   &kp BSPC        &kp LEFT    &kp DOWN    &kp RIGHT  &kp TAB    &none
+&none         &kp LC(LEFT)  &kp LC(RIGHT) &kp LG(C)     &kp LG(V)     &none         &none                                              &none     &none           &kp PG_DN   &kp PG_UP   &none      &none      &trans
+                            &trans                      &trans        &trans        &trans        &trans                 &trans        &trans    &trans          &to QWERTY_L            &kp  RCTRL   
+                        >;
+			
+                        sensor-bindings = <&inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;
+                };
+
         };
 };
